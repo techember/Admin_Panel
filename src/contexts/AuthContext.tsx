@@ -30,24 +30,24 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>({
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    role: 'admin'
+  // Check if user was previously logged in
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('admin_user');
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
   const login = async (email: string, password: string) => {
     // Mock login - in real app, this would make API call
     if (email === 'admin@example.com' && password === 'admin123') {
-      setUser({
+      const userData = {
         id: '1',
         name: 'Admin User',
         email: 'admin@example.com',
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        role: 'admin'
-      });
+        role: 'admin' as const
+      };
+      setUser(userData);
+      localStorage.setItem('admin_user', JSON.stringify(userData));
     } else {
       throw new Error('Invalid credentials');
     }
@@ -55,6 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('admin_user');
   };
 
   const value = {

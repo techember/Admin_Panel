@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { UserManagement } from "@/pages/UserManagement";
 import { KYCManagement } from "@/pages/KYCManagement";
@@ -20,6 +21,32 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AdminRoutes = () => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/users" element={<UserManagement />} />
+      <Route path="/kyc" element={<KYCManagement />} />
+      <Route path="/wallet" element={<WalletManagement />} />
+      <Route path="/transactions" element={<TransactionManagement />} />
+      <Route path="/commission" element={<CommissionSettings />} />
+      <Route path="/services" element={<ServiceControl />} />
+      <Route path="/reports" element={<Reports />} />
+      <Route path="/referral" element={<ReferralCashback />} />
+      <Route path="/support" element={<Support />} />
+      <Route path="/cms" element={<CMSManagement />} />
+      <Route path="/notifications" element={<NotificationManagement />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -27,21 +54,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/users" element={<UserManagement />} />
-            <Route path="/kyc" element={<KYCManagement />} />
-            <Route path="/wallet" element={<WalletManagement />} />
-            <Route path="/transactions" element={<TransactionManagement />} />
-            <Route path="/commission" element={<CommissionSettings />} />
-            <Route path="/services" element={<ServiceControl />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/referral" element={<ReferralCashback />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/cms" element={<CMSManagement />} />
-            <Route path="/notifications" element={<NotificationManagement />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AdminRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
