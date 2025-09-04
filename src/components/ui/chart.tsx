@@ -102,14 +102,30 @@ const ChartTooltip = RechartsPrimitive.Tooltip
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<"div"> & {
-      hideLabel?: boolean
-      hideIndicator?: boolean
-      indicator?: "line" | "dot" | "dashed"
-      nameKey?: string
-      labelKey?: string
-    }
+  {
+    active?: boolean;
+    payload?: Array<{
+      dataKey?: string;
+      name?: string;
+      value?: any;
+      color?: string;
+      fill?: string;
+      stroke?: string;
+      strokeDasharray?: string;
+      payload?: any;
+    }>;
+    label?: any;
+    labelFormatter?: (label: any, payload: any) => React.ReactNode;
+    formatter?: (value: any, name: string, props: any) => React.ReactNode;
+    className?: string;
+    hideLabel?: boolean;
+    hideIndicator?: boolean;
+    indicator?: "line" | "dot" | "dashed";
+    nameKey?: string;
+    labelKey?: string;
+    labelClassName?: string;
+    color?: string;
+  }
 >(
   (
     {
@@ -197,7 +213,7 @@ const ChartTooltipContent = React.forwardRef<
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
+                  formatter(item.value, item.name, item)
                 ) : (
                   <>
                     {itemConfig?.icon ? (
@@ -258,11 +274,19 @@ const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-      hideIcon?: boolean
-      nameKey?: string
-    }
+  {
+    className?: string;
+    hideIcon?: boolean;
+    nameKey?: string;
+    verticalAlign?: "top" | "bottom";
+    payload?: Array<{
+      dataKey?: string;
+      value?: string;
+      type?: string;
+      color?: string;
+      payload?: any;
+    }>;
+  }
 >(
   (
     { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
