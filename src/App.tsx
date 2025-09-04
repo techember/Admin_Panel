@@ -17,6 +17,7 @@ import { ReferralCashback } from "@/pages/ReferralCashback";
 import { Support } from "@/pages/Support";
 import { CMSManagement } from "@/pages/CMSManagement";
 import { NotificationManagement } from "@/pages/NotificationManagement";
+import { AdminProfile } from "@/pages/AdminProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const AdminRoutes = () => {
       <Route path="/support" element={<Support />} />
       <Route path="/cms" element={<CMSManagement />} />
       <Route path="/notifications" element={<NotificationManagement />} />
+      <Route path="/profile" element={<AdminProfile />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
