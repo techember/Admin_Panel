@@ -6,8 +6,12 @@ export const mockUsers = [
     email: 'john.doe@example.com',
     kycStatus: 'verified',
     walletBalance: 1250.50,
-    createdAt: '2024-01-15',
-    status: 'active'
+    createdAt: '2024-01-15T10:30:00Z',
+    status: 'active',
+    referredBy: null,
+    ipAddress: '192.168.1.100',
+    address: '123 Main St, New York, NY 10001',
+    mpin: '1234'
   },
   {
     id: 'U002',
@@ -16,8 +20,12 @@ export const mockUsers = [
     email: 'jane.smith@example.com',
     kycStatus: 'pending',
     walletBalance: 750.25,
-    createdAt: '2024-01-16',
-    status: 'active'
+    createdAt: '2024-01-16T14:20:00Z',
+    status: 'active',
+    referredBy: 'U001',
+    ipAddress: '192.168.1.101',
+    address: '456 Oak Ave, Los Angeles, CA 90210',
+    mpin: '5678'
   },
   {
     id: 'U003',
@@ -26,8 +34,40 @@ export const mockUsers = [
     email: 'mike.johnson@example.com',
     kycStatus: 'rejected',
     walletBalance: 0.00,
-    createdAt: '2024-01-17',
-    status: 'suspended'
+    createdAt: '2024-01-17T09:15:00Z',
+    status: 'suspended',
+    referredBy: null,
+    ipAddress: '192.168.1.102',
+    address: '789 Pine Rd, Chicago, IL 60601',
+    mpin: '9012'
+  },
+  {
+    id: 'U004',
+    name: 'Sarah Wilson',
+    mobile: '+1234567893',
+    email: 'sarah.wilson@example.com',
+    kycStatus: 'verified',
+    walletBalance: 2100.75,
+    createdAt: '2024-01-18T16:45:00Z',
+    status: 'active',
+    referredBy: 'U002',
+    ipAddress: '192.168.1.103',
+    address: '321 Elm St, Houston, TX 77001',
+    mpin: '3456'
+  },
+  {
+    id: 'U005',
+    name: 'David Brown',
+    mobile: '+1234567894',
+    email: 'david.brown@example.com',
+    kycStatus: 'pending',
+    walletBalance: 500.00,
+    createdAt: '2024-01-19T11:30:00Z',
+    status: 'active',
+    referredBy: null,
+    ipAddress: '192.168.1.104',
+    address: '654 Maple Dr, Phoenix, AZ 85001',
+    mpin: '7890'
   }
 ];
 

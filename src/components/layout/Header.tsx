@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MagnifyingGlassIcon, BellIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   title: string;
@@ -10,6 +11,50 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title, onSidebarToggle, sidebarOpen }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  // Mock notification data
+  const notifications = [
+    { id: 1, title: 'New KYC Request', message: 'John Doe submitted KYC documents', time: '2 min ago', unread: true },
+    { id: 2, title: 'Wallet Top-up', message: 'User U002 added ₹500 to wallet', time: '15 min ago', unread: true },
+    { id: 3, title: 'Transaction Failed', message: 'Mobile recharge failed for U003', time: '1 hour ago', unread: false }
+  ];
+
+  const unreadCount = notifications.filter(n => n.unread).length;
+
+  const handleNotificationClick = () => {
+    setNotificationDropdownOpen(!notificationDropdownOpen);
+  };
+
+  const handleNotificationItemClick = (notificationId: number) => {
+    // Mark as read and navigate to relevant page
+    console.log('Notification clicked:', notificationId);
+    setNotificationDropdownOpen(false);
+  };
+
+  const handleViewAllNotifications = () => {
+    navigate('/notifications');
+    setNotificationDropdownOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setNotificationDropdownOpen(false);
+      }
+    };
+
+    if (notificationDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [notificationDropdownOpen]);
 
   return (
     <header className="h-16 bg-primary text-primary-foreground flex items-center justify-between px-4 lg:px-6 shadow-lg relative z-30">
@@ -58,13 +103,64 @@ export const Header: React.FC<HeaderProps> = ({ title, onSidebarToggle, sidebarO
         </button>
 
         {/* Notifications */}
-        <div className="relative">
-          <button className="p-2 rounded-lg hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-foreground/20">
+        <div className="relative" ref={notificationRef}>
+          <button 
+            onClick={handleNotificationClick}
+            className="p-2 rounded-lg hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-foreground/20"
+          >
             <BellIcon className="h-6 w-6" />
-            <span className="absolute -top-1 -right-1 h-5 w-5 bg-warning text-warning-foreground rounded-full text-xs font-semibold flex items-center justify-center">
-              3
-            </span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 bg-warning text-warning-foreground rounded-full text-xs font-semibold flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
           </button>
+
+          {/* Notification Dropdown */}
+          {notificationDropdownOpen && (
+            <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                  <button
+                    onClick={handleViewAllNotifications}
+                    className="text-sm text-primary hover:text-primary-hover"
+                  >
+                    View All
+                  </button>
+                </div>
+              </div>
+              
+              <div className="max-h-96 overflow-y-auto">
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      onClick={() => handleNotificationItemClick(notification.id)}
+                      className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                        notification.unread ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-2 h-2 rounded-full mt-2 ${
+                          notification.unread ? 'bg-blue-500' : 'bg-gray-300'
+                        }`} />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
+                          <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                          <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    No notifications
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

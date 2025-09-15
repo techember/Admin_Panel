@@ -19,6 +19,9 @@ import { CMSManagement } from "@/pages/CMSManagement";
 import { NotificationManagement } from "@/pages/NotificationManagement";
 import { AdminProfile } from "@/pages/AdminProfile";
 import NotFound from "./pages/NotFound";
+import { AffiliateStore } from "@/pages/AffiliateStore";
+import { Games } from "@/pages/Master/Games";
+import { Banner } from "@/pages/Master/Banner";
 
 const queryClient = new QueryClient();
 
@@ -38,12 +41,16 @@ const AdminRoutes = () => {
       <Route path="/transactions" element={<TransactionManagement />} />
       <Route path="/commission" element={<CommissionSettings />} />
       <Route path="/services" element={<ServiceControl />} />
+      <Route path="/master/services" element={<ServiceControl />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/referral" element={<ReferralCashback />} />
       <Route path="/support" element={<Support />} />
       <Route path="/cms" element={<CMSManagement />} />
       <Route path="/notifications" element={<NotificationManagement />} />
       <Route path="/profile" element={<AdminProfile />} />
+      <Route path="/affiliate-store" element={<AffiliateStore />} />
+      <Route path="/master/games" element={<Games />} />
+      <Route path="/master/banner" element={<Banner />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

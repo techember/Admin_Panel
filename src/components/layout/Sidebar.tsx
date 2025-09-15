@@ -16,7 +16,10 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  BuildingStorefrontIcon,
+  Squares2X2Icon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
@@ -29,20 +32,40 @@ interface SidebarProps {
   className?: string;
 }
 
-const navigation = [
+type NavItem = {
+  name: string;
+  href?: string;
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  children?: Array<{
+    name: string;
+    href: string;
+    icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  }>;
+};
+
+const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'User Management', href: '/users', icon: UsersIcon },
   { name: 'KYC Management', href: '/kyc', icon: DocumentCheckIcon },
   { name: 'Wallet Management', href: '/wallet', icon: WalletIcon },
   { name: 'Transactions', href: '/transactions', icon: CreditCardIcon },
   { name: 'Commission Settings', href: '/commission', icon: CogIcon },
-  { name: 'Service Control', href: '/services', icon: WrenchScrewdriverIcon },
+  {
+    name: 'Master',
+    icon: Squares2X2Icon,
+    children: [
+      { name: 'Service Control', href: '/master/services', icon: WrenchScrewdriverIcon },
+      { name: 'Games', href: '/master/games', icon: Squares2X2Icon },
+      { name: 'Banner', href: '/master/banner', icon: PhotoIcon }
+    ]
+  },
   { name: 'Reports', href: '/reports', icon: ChartBarIcon },
   { name: 'Referral & Cashback', href: '/referral', icon: UserPlusIcon },
   { name: 'Support & Feedback', href: '/support', icon: ChatBubbleLeftRightIcon },
   { name: 'CMS Management', href: '/cms', icon: DocumentTextIcon },
   { name: 'Notifications', href: '/notifications', icon: BellIcon },
-  { name: 'Admin Profile', href: '/profile', icon: UserIcon }
+  { name: 'Admin Profile', href: '/profile', icon: UserIcon },
+  { name: 'Affiliate Store', href: '/affiliate-store', icon: BuildingStorefrontIcon }
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
@@ -56,8 +79,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { logout } = useAuth();
   const focusTrapRef = useFocusTrap(isOpen);
 
+  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({});
+
   const handleLogout = () => {
     logout();
+  };
+
+  const toggleGroup = (groupName: string) => {
+    setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
 
   // Mobile overlay
@@ -133,32 +162,94 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <nav className="flex-1 overflow-y-auto admin-scrollbar p-4">
         <div className="space-y-2">
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isGroup = !!item.children?.length;
+            const isActive = item.href ? location.pathname === item.href : false;
+
+            if (!isGroup) {
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href as string}
+                  onClick={onItemClick}
+                  className={({ isActive }) =>
+                    `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                      isActive
+                        ? 'bg-primary-foreground/10 text-primary-foreground'
+                        : 'text-primary-foreground/80 hover:bg-primary-foreground/5 hover:text-primary-foreground'
+                    }`
+                  }
+                >
+                  {item.icon && (
+                    <item.icon 
+                      className={`h-5 w-5 flex-shrink-0 ${
+                        isCollapsed ? '' : 'mr-3'
+                      } ${isActive ? 'text-primary-foreground' : 'text-primary-foreground/70'}`} 
+                    />
+                  )}
+                  {!isCollapsed && (
+                    <span className="truncate">{item.name}</span>
+                  )}
+                  {isCollapsed && (
+                    <span className="sr-only">{item.name}</span>
+                  )}
+                </NavLink>
+              );
+            }
+
+            const isOpen = openGroups[item.name] ?? true;
+
             return (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                onClick={onItemClick}
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                    isActive
-                      ? 'bg-primary-foreground/10 text-primary-foreground'
-                      : 'text-primary-foreground/80 hover:bg-primary-foreground/5 hover:text-primary-foreground'
-                  }`
-                }
-              >
-                <item.icon 
-                  className={`h-5 w-5 flex-shrink-0 ${
-                    isCollapsed ? '' : 'mr-3'
-                  } ${isActive ? 'text-primary-foreground' : 'text-primary-foreground/70'}`} 
-                />
-                {!isCollapsed && (
-                  <span className="truncate">{item.name}</span>
+              <div key={item.name}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(item.name)}
+                  className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                    'text-primary-foreground/80 hover:bg-primary-foreground/5 hover:text-primary-foreground'
+                  }`}
+                >
+                  {item.icon && (
+                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'} text-primary-foreground/70`} />
+                  )}
+                  {!isCollapsed && <span className="flex-1 text-left truncate">{item.name}</span>}
+                  {!isCollapsed && (
+                    <svg
+                      className={`h-4 w-4 transition-transform ${isOpen ? '' : 'rotate-180'}`}
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  {isCollapsed && <span className="sr-only">{item.name}</span>}
+                </button>
+                {isOpen && !isCollapsed && (
+                  <div className="ml-8 mt-1 space-y-1">
+                    {item.children!.map((child) => {
+                      const childActive = location.pathname === child.href;
+                      return (
+                        <NavLink
+                          key={child.name}
+                          to={child.href}
+                          onClick={onItemClick}
+                          className={({ isActive }) =>
+                            `flex items-center px-3 py-2 rounded-md text-sm transition-all duration-200 ${
+                              isActive || childActive
+                                ? 'bg-primary-foreground/10 text-primary-foreground'
+                                : 'text-primary-foreground/80 hover:bg-primary-foreground/5 hover:text-primary-foreground'
+                            }`
+                          }
+                        >
+                          {child.icon && (
+                            <child.icon className={`h-4 w-4 mr-3 ${childActive ? 'text-primary-foreground' : 'text-primary-foreground/70'}`} />
+                          )}
+                          <span className="truncate">{child.name}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
                 )}
-                {isCollapsed && (
-                  <span className="sr-only">{item.name}</span>
-                )}
-              </NavLink>
+              </div>
             );
           })}
         </div>
