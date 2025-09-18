@@ -93,11 +93,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const MobileSidebar = () => (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
       
       {/* Sidebar */}
       <div
