@@ -18,6 +18,9 @@ export const WalletManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'credit' | 'debit' | null>(null);
   const [selectedUser, setSelectedUser] = useState('');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
 
@@ -75,6 +78,9 @@ export const WalletManagement = () => {
     setShowModal(false);
     setModalType(null);
     setSelectedUser('');
+    setUserSearchTerm('');
+    setFilteredUsers([]);
+    setShowUserDropdown(false);
     setAmount('');
     setReason('');
   };
@@ -91,6 +97,29 @@ export const WalletManagement = () => {
   };
 
   const lowBalanceUsers = users.filter(user => user.walletBalance < 100);
+
+  // User search functionality
+  const handleUserSearch = (searchTerm: string) => {
+    setUserSearchTerm(searchTerm);
+    if (searchTerm.length > 0) {
+      const filtered = users.filter(user => 
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+      setShowUserDropdown(true);
+    } else {
+      setFilteredUsers([]);
+      setShowUserDropdown(false);
+    }
+  };
+
+  const selectUser = (user: any) => {
+    setSelectedUser(user.id);
+    setUserSearchTerm(`${user.name} (${user.id}) - ₹${user.walletBalance.toFixed(2)}`);
+    setShowUserDropdown(false);
+  };
 
   if (loading) {
     return (
@@ -227,19 +256,36 @@ export const WalletManagement = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Select User</label>
-                  <select
-                    value={selectedUser}
-                    onChange={(e) => setSelectedUser(e.target.value)}
-                    className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  >
-                    <option value="">Select a user...</option>
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} ({user.id}) - ₹{user.walletBalance.toFixed(2)}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="block text-sm font-medium mb-2">Search User</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={userSearchTerm}
+                      onChange={(e) => handleUserSearch(e.target.value)}
+                      onFocus={() => userSearchTerm.length > 0 && setShowUserDropdown(true)}
+                      placeholder="Search by name, ID, or email..."
+                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    />
+                    {showUserDropdown && filteredUsers.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredUsers.map((user) => (
+                          <div
+                            key={user.id}
+                            onClick={() => selectUser(user)}
+                            className="p-3 hover:bg-accent cursor-pointer border-b border-border last:border-b-0"
+                          >
+                            <div className="font-medium">{user.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {user.id} - ₹{user.walletBalance.toFixed(2)}
+                            </div>
+                            {user.email && (
+                              <div className="text-xs text-muted-foreground">{user.email}</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>

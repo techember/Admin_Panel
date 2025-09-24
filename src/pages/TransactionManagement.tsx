@@ -30,6 +30,11 @@ export const TransactionManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [amountRangeFilter, setAmountRangeFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -64,7 +69,61 @@ export const TransactionManagement = () => {
     const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
     const matchesService = serviceFilter === 'all' || transaction.type === serviceFilter;
     
-    return matchesSearch && matchesStatus && matchesService;
+    // Date range filter
+    let matchesDateRange = true;
+    if (dateRange.start && dateRange.end) {
+      const transactionDate = new Date(transaction.createdAt);
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
+      matchesDateRange = transactionDate >= startDate && transactionDate <= endDate;
+    } else if (dateRange.start) {
+      const transactionDate = new Date(transaction.createdAt);
+      const startDate = new Date(dateRange.start);
+      matchesDateRange = transactionDate >= startDate;
+    } else if (dateRange.end) {
+      const transactionDate = new Date(transaction.createdAt);
+      const endDate = new Date(dateRange.end);
+      matchesDateRange = transactionDate <= endDate;
+    }
+    
+    // Amount range filter
+    let matchesAmountRange = true;
+    if (amountRangeFilter !== 'all') {
+      switch (amountRangeFilter) {
+        case 'low':
+          matchesAmountRange = transaction.amount < 100;
+          break;
+        case 'medium':
+          matchesAmountRange = transaction.amount >= 100 && transaction.amount < 1000;
+          break;
+        case 'high':
+          matchesAmountRange = transaction.amount >= 1000;
+          break;
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesService && matchesDateRange && matchesAmountRange;
+  }).sort((a, b) => {
+    let comparison = 0;
+    
+    switch (sortBy) {
+      case 'date':
+        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        break;
+      case 'amount':
+        comparison = a.amount - b.amount;
+        break;
+      case 'user':
+        comparison = a.userName.localeCompare(b.userName);
+        break;
+      case 'service':
+        comparison = a.service.localeCompare(b.service);
+        break;
+      default:
+        comparison = 0;
+    }
+    
+    return sortOrder === 'desc' ? -comparison : comparison;
   });
 
   const updateStatus = (transactionId: string, newStatus: string) => {
@@ -120,7 +179,7 @@ export const TransactionManagement = () => {
                 />
               </div>
 
-              {/* Filters */}
+              {/* Quick Filters */}
               <div className="flex gap-3">
                 <select
                   value={statusFilter}
@@ -146,6 +205,14 @@ export const TransactionManagement = () => {
                 </select>
 
                 <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`btn-secondary flex items-center gap-2 ${showFilters ? 'bg-primary text-primary-foreground' : ''}`}
+                >
+                  <FunnelIcon className="h-4 w-4" />
+                  Filters
+                </button>
+
+                <button
                   onClick={exportTransactions}
                   className="btn-secondary flex items-center gap-2"
                 >
@@ -154,6 +221,99 @@ export const TransactionManagement = () => {
                 </button>
               </div>
             </div>
+
+            {/* Advanced Filters */}
+            {showFilters && (
+              <div className="mt-4 p-4 bg-accent/50 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Date Range Filter */}
+                  <div className="lg:col-span-2">
+                    <label className="block text-sm font-medium mb-2">Date Range</label>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-muted-foreground">From:</label>
+                        <input
+                          type="date"
+                          value={dateRange.start}
+                          onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                          className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-muted-foreground">To:</label>
+                        <input
+                          type="date"
+                          value={dateRange.end}
+                          onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                          className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Amount Range Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Amount Range</label>
+                    <select
+                      value={amountRangeFilter}
+                      onChange={(e) => setAmountRangeFilter(e.target.value)}
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      <option value="all">All Amounts</option>
+                      <option value="low">Under ₹100</option>
+                      <option value="medium">₹100 - ₹1000</option>
+                      <option value="high">Above ₹1000</option>
+                    </select>
+                  </div>
+
+                  {/* Sort By */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Sort By</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      <option value="date">Date</option>
+                      <option value="amount">Amount</option>
+                      <option value="user">User</option>
+                      <option value="service">Service</option>
+                    </select>
+                  </div>
+
+                  {/* Sort Order */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Order</label>
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value)}
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      <option value="desc">Descending</option>
+                      <option value="asc">Ascending</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Clear Filters */}
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setStatusFilter('all');
+                      setServiceFilter('all');
+                      setDateRange({ start: '', end: '' });
+                      setAmountRangeFilter('all');
+                      setSortBy('date');
+                      setSortOrder('desc');
+                    }}
+                    className="btn-secondary text-sm"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Transactions Table */}

@@ -21,12 +21,12 @@ interface BannerItem {
 const mockBanners: BannerItem[] = Array.from({ length: 22 }).map((_, i) => ({
   id: `banner_${i + 1}`,
   imageUrl: "/placeholder.svg",
-  section: ["Top", "Bottom", "Sidebar"][i % 3],
+  section: ["Top", "Middle", "Bottom", "Sidebar"][i % 4],
   type: ["Image", "Carousel", "Popup"][i % 3],
   link: "https://example.com/banner",
 }));
 
-const sectionOptions = ["Top", "Bottom", "Sidebar"];
+const sectionOptions = ["Top", "Middle", "Bottom", "Sidebar"];
 
 export const Banner: React.FC = () => {
   const useMock =

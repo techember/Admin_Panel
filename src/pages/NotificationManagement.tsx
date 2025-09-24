@@ -5,12 +5,15 @@ import { BellIcon, PaperAirplaneIcon, CalendarIcon } from '@heroicons/react/24/o
 interface Notification {
   title: string;
   message: string;
-  type: 'push' | 'sms' | 'email';
+  type: 'push' | 'sms' | 'email' | 'banner';
   audience: 'all' | 'single';
   targetUser: string;
   scheduled: boolean;
   scheduleDate: string;
   scheduleTime: string;
+  bannerImage?: File | null;
+  bannerLink?: string;
+  bannerSection?: 'top' | 'middle' | 'bottom' | 'sidebar';
 }
 
 // ✅ Read flag from .env
@@ -25,7 +28,10 @@ export const NotificationManagement = () => {
     targetUser: '',
     scheduled: false,
     scheduleDate: '',
-    scheduleTime: ''
+    scheduleTime: '',
+    bannerImage: null,
+    bannerLink: '',
+    bannerSection: 'top'
   });
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -70,7 +76,10 @@ export const NotificationManagement = () => {
       targetUser: '',
       scheduled: false,
       scheduleDate: '',
-      scheduleTime: ''
+      scheduleTime: '',
+      bannerImage: null,
+      bannerLink: '',
+      bannerSection: 'top'
     });
   };
 
@@ -88,8 +97,8 @@ export const NotificationManagement = () => {
               {/* Notification Type */}
               <div>
                 <label className="block text-sm font-medium mb-2">Notification Type</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {(['push', 'sms', 'email'] as const).map((type) => (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {(['push', 'sms', 'email', 'banner'] as const).map((type) => (
                     <button
                       key={type}
                       onClick={() => setNotification({ ...notification, type })}
@@ -127,6 +136,48 @@ export const NotificationManagement = () => {
                   className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary h-32 resize-none"
                 />
               </div>
+
+              {/* Banner-specific fields */}
+              {notification.type === 'banner' && (
+                <div className="space-y-4 p-4 bg-accent/50 rounded-lg">
+                  <h4 className="font-medium text-sm">Banner Settings</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Banner Image</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setNotification({ ...notification, bannerImage: e.target.files?.[0] || null })}
+                      className="w-full p-2 border border-border rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Banner Link (Optional)</label>
+                    <input
+                      type="url"
+                      value={notification.bannerLink || ''}
+                      onChange={(e) => setNotification({ ...notification, bannerLink: e.target.value })}
+                      placeholder="https://example.com"
+                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Banner Section</label>
+                    <select
+                      value={notification.bannerSection || 'top'}
+                      onChange={(e) => setNotification({ ...notification, bannerSection: e.target.value as 'top' | 'middle' | 'bottom' | 'sidebar' })}
+                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      <option value="top">Top</option>
+                      <option value="middle">Middle</option>
+                      <option value="bottom">Bottom</option>
+                      <option value="sidebar">Sidebar</option>
+                    </select>
+                  </div>
+                </div>
+              )}
 
               {/* Audience */}
               <div>

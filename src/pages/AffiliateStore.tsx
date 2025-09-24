@@ -12,7 +12,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 
-type StoreSection = 'shopping' | 'travel' | 'insurance';
+type StoreSection = 'shopping' | 'travel' | 'insurance' | 'bank_account' | 'credit_cards' | 'best_deals';
 
 interface StoreItem {
   id: string;
@@ -24,14 +24,14 @@ interface StoreItem {
 }
 
 // Mock Data
-const sections: StoreSection[] = ['shopping', 'travel', 'insurance'];
+const sections: StoreSection[] = ['shopping', 'travel', 'insurance', 'bank_account', 'credit_cards', 'best_deals'];
 const mockStores: StoreItem[] = Array.from({ length: 24 }).map((_, i) => ({
   id: `store_${i + 1}`,
   imageUrl: "/placeholder.svg",
   name: `Affiliate Store ${i + 1}`,
   description: "Short description of the affiliate store goes here.",
   link: "https://example.com",
-  section: sections[i % 3], // Distribute stores across sections
+  section: sections[i % 6], // Distribute stores across sections
 }));
 
 // Env vars
@@ -231,6 +231,9 @@ export const AffiliateStore: React.FC = () => {
                   <option value="shopping">Shopping</option>
                   <option value="travel">Travel</option>
                   <option value="insurance">Insurance</option>
+                  <option value="bank_account">Bank Account</option>
+                  <option value="credit_cards">Credit Cards</option>
+                  <option value="best_deals">Best Deals</option>
                 </select>
               </div>
             </div>
@@ -274,9 +277,18 @@ export const AffiliateStore: React.FC = () => {
                             ? 'bg-blue-100 text-blue-800' 
                             : item.section === 'travel'
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-purple-100 text-purple-800'
+                            : item.section === 'insurance'
+                            ? 'bg-purple-100 text-purple-800'
+                            : item.section === 'bank_account'
+                            ? 'bg-orange-100 text-orange-800'
+                            : item.section === 'credit_cards'
+                            ? 'bg-pink-100 text-pink-800'
+                            : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {item.section.charAt(0).toUpperCase() + item.section.slice(1)}
+                          {item.section === 'bank_account' ? 'Bank Account' :
+                           item.section === 'credit_cards' ? 'Credit Cards' :
+                           item.section === 'best_deals' ? 'Best Deals' :
+                           item.section.charAt(0).toUpperCase() + item.section.slice(1)}
                         </span>
                       </td>
                       <td>
@@ -430,6 +442,9 @@ export const AffiliateStore: React.FC = () => {
                   <option value="shopping">Shopping</option>
                   <option value="travel">Travel</option>
                   <option value="insurance">Insurance</option>
+                  <option value="bank_account">Bank Account</option>
+                  <option value="credit_cards">Credit Cards</option>
+                  <option value="best_deals">Best Deals</option>
                 </select>
                 {errors.section && (
                   <p className="text-sm text-destructive mt-1">{errors.section}</p>
