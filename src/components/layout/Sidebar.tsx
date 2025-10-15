@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import {Wrench} from 'lucide-react';
 import {
   HomeIcon,
   UsersIcon,
@@ -49,6 +50,8 @@ const navigation: NavItem[] = [
   { name: 'KYC Management', href: '/kyc', icon: DocumentCheckIcon },
   { name: 'Wallet Management', href: '/wallet', icon: WalletIcon },
   { name: 'Transactions', href: '/transactions', icon: CreditCardIcon },
+  { name: 'Service Providers', href: '/serviceproviders', icon: Wrench },
+  { name: 'Travel Bookings', href: '/travel-bookings', icon: Wrench },
   { name: 'Commission Settings', href: '/commission', icon: CogIcon },
   {
     name: 'Master',
@@ -165,17 +168,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="space-y-2">
           {navigation.map((item) => {
             const isGroup = !!item.children?.length;
-            const isActive = item.href ? location.pathname === item.href : false;
+            
 
             if (!isGroup) {
+              const isActive = item.href ? location.pathname.startsWith(item.href) : false;
               return (
                 <NavLink
                   key={item.name}
                   to={item.href as string}
                   onClick={onItemClick}
-                  className={({ isActive }) =>
+                  className={({ isActive: navIsActive }) =>
                     `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                      isActive
+                      isActive || navIsActive
                         ? 'bg-primary-foreground/10 text-primary-foreground'
                         : 'text-primary-foreground/80 hover:bg-primary-foreground/5 hover:text-primary-foreground'
                     }`

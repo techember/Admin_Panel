@@ -10,6 +10,8 @@ import { UserManagement } from "@/pages/UserManagement";
 import { KYCManagement } from "@/pages/KYCManagement";
 import { WalletManagement } from "@/pages/WalletManagement";
 import { TransactionManagement } from "@/pages/TransactionManagement";
+import { AdminServiceProviders } from "@/pages/AdminServiceProviders";
+import { AdminTravelBookings} from "./pages/AdminTravelBookings"
 import { CommissionSettings } from "@/pages/CommissionSettings";
 import { ServiceControl } from "@/pages/ServiceControl";
 import { Reports } from "@/pages/Reports";
@@ -39,6 +41,8 @@ const AdminRoutes = () => {
       <Route path="/kyc" element={<KYCManagement />} />
       <Route path="/wallet" element={<WalletManagement />} />
       <Route path="/transactions" element={<TransactionManagement />} />
+      <Route path="/serviceproviders" element={<AdminServiceProviders />} />
+      <Route path="/travel-bookings" element={<AdminTravelBookings />} />
       <Route path="/commission" element={<CommissionSettings />} />
       <Route path="/services" element={<ServiceControl />} />
       <Route path="/master/services" element={<ServiceControl />} />
